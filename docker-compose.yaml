@@ -1,0 +1,17 @@
+version: "3.8"
+
+services:
+  notification-service:
+    container_name: notification-service
+    build: .
+    command: ./.docker/start.sh
+    networks:
+      - all_q
+    ports:
+      - "3001:3001"
+    volumes:
+      - .:/home/node/notification-service
+
+networks:
+  all_q:
+    external: true
