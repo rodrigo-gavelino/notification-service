@@ -1,12 +1,16 @@
 import { RabbitMqMessagingService } from '@core/infrastructure/messaging/rabbit-mq-messaging.service';
 import { OnModuleInit, Injectable, Inject } from '@nestjs/common';
 import { RABBITMQ_MESSAGING_SERVICE } from './notification.provider';
+import { JwtService } from '@nestjs/jwt';
+import { ZohoMailService } from '@core/infrastructure/messaging/zoho-mail.service';
 
 @Injectable()
 export class NotificationService implements OnModuleInit {
   constructor(
     @Inject(RABBITMQ_MESSAGING_SERVICE)
     private readonly messagingService: RabbitMqMessagingService,
+    private readonly jwrService: JwtService,
+    private readonly mailService: ZohoMailService,
   ) {}
 
   async onModuleInit() {
@@ -16,6 +20,12 @@ export class NotificationService implements OnModuleInit {
   }
 
   private async handleUserCreatedEvent(message: any) {
-    console.log('Received UserCreatedEvent', message);
+    const payload = this.jwrService.verify(message, {
+      secret: process.env.JWT_SECRET,
+    });
+    console.log('User ID:', payload._id);
+    console.log('User email:', payload.email);
+
+    this.mailService.sendMail(payload.email, 'User created', 'User created');
   }
 }

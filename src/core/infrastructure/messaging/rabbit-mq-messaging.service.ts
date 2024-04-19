@@ -28,14 +28,6 @@ class RabbitMqMessagingService implements IMessagingService {
 
   private async setupChannel(channel) {
     await channel.assertExchange(this.exchange, 'direct', { durable: true });
-
-    await channel.assertQueue('UserCreatedEvent', { durable: true });
-
-    await channel.bindQueue(
-      'UserCreatedEvent',
-      this.exchange,
-      'UserCreatedEvent',
-    );
   }
 
   async consume(
